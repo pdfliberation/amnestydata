@@ -15,3 +15,5 @@ These records could be easily put into a database with three simple fields, coun
 The database would could also be used to run a RESTful API. A RESTful API would allow websites around the world to display "AI Alert" widgets on their websites that would show the abuses described. For example, a wikipedia.org page on a specific country could have a "current alert" box on the page that would show the current alert for that country. The database behind the API could be easily updated by Amnesty International staff via a simple webpage and the abuses described would then be available in real time at any website that was using the RESTful API. This would also be doubly useful in that the database would be updated in realtime and any statistical information work would remain up-to-date. 
 
 In summary, the results of the pdfliberation hackathon is currently available at https://github.com/pdfliberation/amnestydata, but Amnesty International support staff needs to contact the contributors to determine prospects for continued work on the project.
+
+*** A Sample Conceptual AI Alert database was added ***
