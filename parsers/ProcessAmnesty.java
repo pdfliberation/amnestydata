@@ -1,4 +1,4 @@
-package TestPDF;
+package ProcessAmnesty;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -23,27 +23,31 @@ import org.apache.pdfbox.util.TextPosition;
 
 // PART TWO: COUNTRY ENTRIES
 // Amnesty International visits/reports
+//
 
 
 public class ProcessAmnesty {
 	
 	List<String> labels = new ArrayList<String>();
 	List<String> tLabels = new ArrayList<String>();
+	List<String> countries = new ArrayList<String>();
 	
 	public static void main(String[] args) throws Exception {
-		int year = 2012;
+		int year = 2008;
 		ProcessAmnesty test = new ProcessAmnesty();
 		test.parsePDF(year);
+		test.readCountries(year);
 		test.deDup(year);
 		test.process(year);
 	}
 
 	public void process(int year) throws Exception {
+		StringBuffer writer = new StringBuffer();
 		BufferedReader reader = new BufferedReader( new InputStreamReader( new FileInputStream("c:/users/karl/downloads/" + year + " extract.txt"), Charset.forName("UTF-8") ) );
 		String line;
 		boolean start = false;
 		boolean tFound = false;
-		BufferedWriter writer = null;
+//		BufferedWriter writer = null;
 		String lastFound = null;
 		boolean saveParagraph = false;
 		while ( (line=reader.readLine()) != null ) {
@@ -52,6 +56,9 @@ public class ProcessAmnesty {
 				System.out.println("start");
 			}
 			if ( !start ) continue;
+			if ( line.toLowerCase().contains("part three: selected human rights treaties") ) {
+				break;
+			}
 			
 			for ( String country: countries ) {
 				if ( line.equals(country.toUpperCase()) ) {
@@ -59,14 +66,15 @@ public class ProcessAmnesty {
 					if ( country.equals(lastFound)) break;
 					// no, make a new writer.
 					if ( writer != null ) {
-						writer.close();
+//						writer.close();
 						if( !tFound ) {
 							File file = new File("c:/users/karl/downloads/" + year + " " + lastFound+".txt");
 							file.delete();
 						}
 					}
 					lastFound = country;
-					writer = new BufferedWriter( new OutputStreamWriter(new FileOutputStream("c:/users/karl/downloads/" + year + " " + country+".txt")));
+//					writer = new BufferedWriter( new OutputStreamWriter(new FileOutputStream("c:/users/karl/downloads/" + year + " " + country+".txt")));
+					writer.append("========== " + country.toUpperCase() + " ==========\r\n");
 					tFound = false;
 					saveParagraph = false;
 				}
@@ -89,16 +97,46 @@ public class ProcessAmnesty {
 			}
 			if ( saveParagraph ) {
 				if ( !line.contains("Amnesty International Report") && line.length() > 1) {
-					writer.write(line);
-					writer.newLine();
+					writer.append(line+"\r\n");
+//					writer.ap.newLine();
 					}
 			}
 			
 		}
 		if ( writer != null ) {
-			writer.close();
+			BufferedWriter bw = new BufferedWriter( new OutputStreamWriter(new FileOutputStream("c:/users/karl/downloads/" + year + " torture extract.txt")));
+			bw.write(writer.toString());
+			bw.close();
+//			writer.close();
 		}
 		reader.close();
+	}
+	
+	public void readCountries(int year) throws Exception {
+		BufferedReader reader = new BufferedReader( new InputStreamReader( new FileInputStream("c:/users/karl/downloads/" + year + " headers.txt"), Charset.forName("UTF-8") ) );
+		boolean start = false;
+		String line;
+		while ( (line=reader.readLine()) != null ) {
+			if ( line.toLowerCase().contains("part two: country entries")) {
+				start = true;
+				System.out.println("start");
+			}
+			if ( !start ) continue;
+			if ( line.toLowerCase().contains("amnesty international report") ) continue;
+			if ( line.toLowerCase().contains("part three: selected human rights treaties") ) {
+				break;
+			}
+			boolean country = true;
+			for ( int i=0, j=line.length(); i<j; ++i ) {
+				if ( Character.isLowerCase(line.charAt(i))) {
+					country = false;
+					break;
+				}
+			}
+			if ( country) countries.add(line);
+		}
+		reader.close();
+
 	}
 	
 	public void deDup(int year) throws Exception {
@@ -230,7 +268,7 @@ public class ProcessAmnesty {
 	static boolean maybeNewLine;
 	static boolean maybeNewLine2;
     static Writer output2;
-    
+/*    
 	static String[] countries = {
 		"Afghanistan",
 		"Albania",
@@ -389,5 +427,5 @@ public class ProcessAmnesty {
 		"Yemen",
 		"Zimbabwe"
 	};
-	
+*/	
 }
