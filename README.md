@@ -1,4 +1,4 @@
 amnestydata
 ===========
 
-Amnesty International Torture data
+Amnesty International Torture Data
