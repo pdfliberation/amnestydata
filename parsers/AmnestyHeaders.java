@@ -61,7 +61,7 @@ public class AmnestyHeaders {
 					if ( writer != null ) {
 						writer.close();
 						if( !tFound ) {
-							File file = new File("c:/users/karl/downloads/" + lastFound+".txt");
+							File file = new File("c:/users/karl/downloads/" + year + " " + lastFound+".txt");
 							file.delete();
 						}
 					}
