@@ -25,14 +25,14 @@ import org.apache.pdfbox.util.TextPosition;
 // Amnesty International visits/reports
 
 
-public class AmnestyHeaders {
+public class ProcessAmnesty {
 	
 	List<String> labels = new ArrayList<String>();
 	List<String> tLabels = new ArrayList<String>();
 	
 	public static void main(String[] args) throws Exception {
 		int year = 2012;
-		AmnestyHeaders test = new AmnestyHeaders();
+		ProcessAmnesty test = new ProcessAmnesty();
 		test.parsePDF(year);
 		test.deDup(year);
 		test.process(year);
@@ -104,18 +104,27 @@ public class AmnestyHeaders {
 	public void deDup(int year) throws Exception {
 		Set<String> set = new TreeSet<String>();
 		BufferedReader reader = new BufferedReader( new InputStreamReader( new FileInputStream("c:/users/karl/downloads/" + year + " headers.txt"), Charset.forName("UTF-8") ) );
-		addLines(reader, set);
+			addLines(reader, set);
 		reader.close();
 
 		for(String s: set ) {
 			if ( s.startsWith("torture")) tLabels.add(s);
-			else labels.add(s);
+			else {
+				labels.add(s);
+			}
 		}
 	}
 	
 	private void addLines(BufferedReader reader, Set<String> set) throws Exception {
+		boolean start = false;
+		boolean tFound = false;
 		String line;
 		while ( (line=reader.readLine()) != null ) {
+			if ( line.toLowerCase().contains("part two: country entries")) {
+				start = true;
+				System.out.println("start");
+			}
+			if ( !start ) continue;
 			line = line.replace("|", "").toLowerCase();
 			boolean f = false;
 			for ( String country: countries ) {
@@ -124,6 +133,11 @@ public class AmnestyHeaders {
 					break;
 				}
 			}
+			if ( line.contains("amnesty international report") ) continue;
+			if ( line.contains("part three: selected human rights treaties") ) {
+				break;
+			}
+			if ( line.trim().length() <= 1) continue;
 			if ( !set.contains(line) && !f) set.add(line);
 		}
 		
