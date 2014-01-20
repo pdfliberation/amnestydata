@@ -1,19 +1,8 @@
 package ProcessAmnesty;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.apache.pdfbox.exceptions.InvalidPasswordException;
 import org.apache.pdfbox.pdfparser.PDFParser;
@@ -21,13 +10,11 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
 import org.apache.pdfbox.util.TextPosition;
 
-// PART TWO: COUNTRY ENTRIES
-// Amnesty International visits/reports
-//
-
 
 public class ProcessAmnesty {
 	
+	private static final String workingDirectory = "c:/users/karl/downloads/";
+
 	List<String> labels = new ArrayList<String>();
 	List<String> tLabels = new ArrayList<String>();
 	List<String> countries = new ArrayList<String>();
@@ -37,17 +24,15 @@ public class ProcessAmnesty {
 		ProcessAmnesty test = new ProcessAmnesty();
 		test.parsePDF(year);
 		test.readCountries(year);
-		test.deDup(year);
+		test.dedupLabels(year);
 		test.process(year);
 	}
 
 	public void process(int year) throws Exception {
 		StringBuffer writer = new StringBuffer();
-		BufferedReader reader = new BufferedReader( new InputStreamReader( new FileInputStream("c:/users/karl/downloads/" + year + " extract.txt"), Charset.forName("UTF-8") ) );
+		BufferedReader reader = new BufferedReader( new InputStreamReader( new FileInputStream(workingDirectory + year + " extract.txt"), Charset.forName("UTF-8") ) );
 		String line;
 		boolean start = false;
-		boolean tFound = false;
-//		BufferedWriter writer = null;
 		String lastFound = null;
 		boolean saveParagraph = false;
 		while ( (line=reader.readLine()) != null ) {
@@ -65,17 +50,9 @@ public class ProcessAmnesty {
 					// duplicate country name?
 					if ( country.equals(lastFound)) break;
 					// no, make a new writer.
-					if ( writer != null ) {
-//						writer.close();
-						if( !tFound ) {
-							File file = new File("c:/users/karl/downloads/" + year + " " + lastFound+".txt");
-							file.delete();
-						}
-					}
 					lastFound = country;
-//					writer = new BufferedWriter( new OutputStreamWriter(new FileOutputStream("c:/users/karl/downloads/" + year + " " + country+".txt")));
+					// start new country section
 					writer.append("========== " + country.toUpperCase() + " ==========\r\n");
-					tFound = false;
 					saveParagraph = false;
 				}
 			}
@@ -85,7 +62,6 @@ public class ProcessAmnesty {
 			for ( String label: tLabels ) {
 				if ( line.toLowerCase().equals(label) ) {
 					saveParagraph = true;
-					tFound = true;
 					break;
 				}
 			}
@@ -98,22 +74,18 @@ public class ProcessAmnesty {
 			if ( saveParagraph ) {
 				if ( !line.contains("Amnesty International Report") && line.length() > 1) {
 					writer.append(line+"\r\n");
-//					writer.ap.newLine();
 					}
 			}
 			
 		}
-		if ( writer != null ) {
-			BufferedWriter bw = new BufferedWriter( new OutputStreamWriter(new FileOutputStream("c:/users/karl/downloads/" + year + " torture extract.txt")));
-			bw.write(writer.toString());
-			bw.close();
-//			writer.close();
-		}
+		BufferedWriter bw = new BufferedWriter( new OutputStreamWriter(new FileOutputStream(workingDirectory + year + " torture extract.txt")));
+		bw.write(writer.toString());
+		bw.close();
 		reader.close();
 	}
 	
 	public void readCountries(int year) throws Exception {
-		BufferedReader reader = new BufferedReader( new InputStreamReader( new FileInputStream("c:/users/karl/downloads/" + year + " headers.txt"), Charset.forName("UTF-8") ) );
+		BufferedReader reader = new BufferedReader( new InputStreamReader( new FileInputStream(workingDirectory + year + " headers.txt"), Charset.forName("UTF-8") ) );
 		boolean start = false;
 		String line;
 		while ( (line=reader.readLine()) != null ) {
@@ -139,23 +111,11 @@ public class ProcessAmnesty {
 
 	}
 	
-	public void deDup(int year) throws Exception {
+	public void dedupLabels(int year) throws Exception {
 		Set<String> set = new TreeSet<String>();
-		BufferedReader reader = new BufferedReader( new InputStreamReader( new FileInputStream("c:/users/karl/downloads/" + year + " headers.txt"), Charset.forName("UTF-8") ) );
-			addLines(reader, set);
-		reader.close();
-
-		for(String s: set ) {
-			if ( s.startsWith("torture")) tLabels.add(s);
-			else {
-				labels.add(s);
-			}
-		}
-	}
-	
-	private void addLines(BufferedReader reader, Set<String> set) throws Exception {
+		BufferedReader reader = new BufferedReader( new InputStreamReader( new FileInputStream(workingDirectory + year + " headers.txt"), Charset.forName("UTF-8") ) );
 		boolean start = false;
-		boolean tFound = false;
+
 		String line;
 		while ( (line=reader.readLine()) != null ) {
 			if ( line.toLowerCase().contains("part two: country entries")) {
@@ -178,13 +138,21 @@ public class ProcessAmnesty {
 			if ( line.trim().length() <= 1) continue;
 			if ( !set.contains(line) && !f) set.add(line);
 		}
-		
-	}
 
+		reader.close();
+
+		for(String s: set ) {
+			if ( s.startsWith("torture")) tLabels.add(s);
+			else {
+				labels.add(s);
+			}
+		}
+	}
+	
 	public void parsePDF(int year) throws Exception {
 
 //        PDFParser parser = new PDFParser( TestPDF.class.getResourceAsStream("/TestPDF.pdf") );
-		PDFParser parser = new PDFParser( new FileInputStream("c:/users/karl/downloads/" + year + ".pdf") );
+		PDFParser parser = new PDFParser( new FileInputStream(workingDirectory + year + ".pdf") );
         parser.parse();
         PDDocument document = parser.getPDDocument();
         if( document.isEncrypted() )
@@ -200,36 +168,40 @@ public class ProcessAmnesty {
             }
         }
 
-//        Writer output = new OutputStreamWriter( System.out );
-        Writer output = new OutputStreamWriter (new FileOutputStream( "c:/users/karl/downloads/" + year + " extract.txt" ) );
-        output2 = new OutputStreamWriter (new FileOutputStream( "c:/users/karl/downloads/" + year + " headers.txt" ) );
-        
         MyStripper stripper = new MyStripper();
+        
+        Writer output = new OutputStreamWriter (new FileOutputStream( workingDirectory + year + " extract.txt" ) );
+        stripper.headerOutput = new OutputStreamWriter (new FileOutputStream( workingDirectory + year + " headers.txt" ) );
+
         stripper.writeText(document, output);
         
         output.close();
-        output2.close();
+        stripper.headerOutput.close();
         document.close();
 	}
 	
-	public static class MyStripper extends  PDFTextStripper {
+
+    public class MyStripper extends  PDFTextStripper {
+        public Writer headerOutput;
+    	boolean startLine;
+    	boolean maybeNewLine;
+    	boolean maybeNewLine2;
+    	
 		public MyStripper() throws IOException { super(); }
 		
 		@Override
 	    protected void writeWordSeparator() throws IOException
 	    {
 	        output.write(getWordSeparator());
-	        if ( startLine ) output2.write(" ");
+	        if ( startLine ) headerOutput.write(" ");
 	    }
 
 		@Override
 	    protected void writeLineSeparator( ) throws IOException
 	    {
 			maybeNewLine = true;
-//	        output.write(getLineSeparator());
 	        if ( startLine ) {
 	        	maybeNewLine2 = true;
-//	        	output2.write("\r\n");
 	        	startLine = false;
 	        }
 	    }
@@ -249,183 +221,16 @@ public class ProcessAmnesty {
 	        if ( text.length() != 1 || h != 6.0 ) writeString(text);
 	        if ( h > 6 ) {
 				if ( maybeNewLine2 && Character.isUpperCase(text.charAt(0)) ) {
-		        	output2.write("\r\n");
+		        	headerOutput.write("\r\n");
 					maybeNewLine2 = false;
 				} else if ( maybeNewLine2 && Character.isLowerCase(text.charAt(0)) ) {
-			        output2.write(getWordSeparator());
+			        headerOutput.write(getWordSeparator());
 					maybeNewLine2 = false;
 				}
-	        	output2.write(text);
+	        	headerOutput.write(text);
 	        	startLine = true;
-//		        if ( text.length() == 1 ) output2.write("--"+h+"--");
 	        }
 	    }
-		
-		
 	}
 
-	static boolean startLine;
-	static boolean maybeNewLine;
-	static boolean maybeNewLine2;
-    static Writer output2;
-/*    
-	static String[] countries = {
-		"Afghanistan",
-		"Albania",
-		"Algeria",
-		"Angola",
-		"Argentina",
-		"Armenia",
-		"Australia",
-		"Austria",
-		"Azerbaijan",
-		"Bahamas",
-		"Bahrain",
-		"Bangladesh",
-		"Belarus",
-		"Belgium",
-		"Benin",
-		"Bolivia",
-		"Bosnia and Herzegovina",
-		"Brazil",
-		"Bulgaria",
-		"Burkina Faso",
-		"Burundi",
-		"Cambodia",
-		"Cameroon",
-		"Canada",
-		"Central African Republic",
-		"Chad",
-		"Chile",
-		"China",
-		"Colombia",
-		"Congo (Republic of)",
-		"Côte d’Ivoire",
-		"Croatia",
-		"Cuba",
-		"Cyprus",
-		"Czech Republic",
-		"Democratic Republic of the Congo",
-		"Denmark",
-		"Dominican Republic",
-		"Ecuador",
-		"Egypt",
-		"El Salvador",
-		"Equatorial Guinea",
-		"Eritrea",
-		"Ethiopia",
-		"Fiji",
-		"Finland",
-		"France",
-		"Gambia",
-		"Georgia",
-		"Germany",
-		"Ghana",
-		"Greece",
-		"Guatemala",
-		"Guinea",
-		"Guinea-Bissau",
-		"Guyana",
-		"Haiti",
-		"Honduras",
-		"Hungary",
-		"India",
-		"Indonesia",
-		"Iran",
-		"Iraq",
-		"Ireland",
-		"Israel and the Occupied Palestinian Territories",
-		"Italy",
-		"Jamaica",
-		"Japan",
-		"Jordan",
-		"Kazakhstan",
-		"Kenya",
-		"Korea (Democratic People’s Republic of)",
-		"Korea (Republic of)",
-		"Kuwait",
-		"Kyrgyzstan",
-		"Laos",
-		"Lebanon",
-		"Liberia",
-		"Libya",
-		"Lithuania",
-		"Macedonia",
-		"Madagascar",
-		"Malawi",
-		"Malaysia",
-		"Maldives",
-		"Mali",
-		"Malta",
-		"Mauritania",
-		"Mexico",
-		"Moldova",
-		"Mongolia",
-		"Montenegro",
-		"Morocco",
-		"Western Sahara",
-		"Mozambique",
-		"Myanmar",
-		"Namibia",
-		"Nepal",
-		"Netherlands",
-		"New Zealand",
-		"Nicaragua",
-		"Niger",
-		"Nigeria",
-		"Norway",
-		"Oman",
-		"Pakistan",
-		"Palestinian Authority",
-		"Panama",
-		"Paraguay",
-		"Peru",
-		"Philippines",
-		"Poland",
-		"Portugal",
-		"Puerto Rico",
-		"Qatar",
-		"Romania",
-		"Russian Federation",
-		"Rwanda",
-		"Saudi Arabia",
-		"Senegal",
-		"Serbia",
-		"Sierra Leone",
-		"Singapore",
-		"Slovakia",
-		"Slovenia",
-		"Somalia",
-		"South Africa",
-		"South Sudan",
-		"Spain",
-		"Sri Lanka",
-		"Sudan",
-		"Swaziland",
-		"Sweden",
-		"Switzerland",
-		"Syria",
-		"Taiwan",
-		"Tajikistan",
-		"Tanzania",
-		"Thailand",
-		"Timor-Leste",
-		"Togo",
-		"Trinidad and Tobago",
-		"Tunisia",
-		"Turkey",
-		"Turkmenistan",
-		"Uganda",
-		"Ukraine",
-		"United Arab Emirates",
-		"United Kingdom",
-		"United States of America",
-		"Uruguay",
-		"Uzbekistan",
-		"Venezuela",
-		"Viet Nam",
-		"Yemen",
-		"Zimbabwe"
-	};
-*/	
 }
