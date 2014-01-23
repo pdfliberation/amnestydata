@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en" data-framework="backbonejs">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Amnesty International Alert Database</title>
+<style>
+body {
+	color: rgb(51, 51, 51);
+	line-height: 1.4285;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	background-color: rgb(255, 255, 255);
+}
+
+.alert-info {
+	background: rgb(246, 246, 246);
+	margin: 1.71rem 0px;
+	padding: 10px 10px 0px;
+	border-radius: 10px;
+	border: 1px solid rgb(204, 204, 204);
+	border-image: none;
+	color: rgb(136, 136, 136);
+	overflow: hidden;
+}
+
+.description {
+	font-size: 0.9em;
+}
+@media screen and (min-width:600px)
+.description {
+	width: 90%;
+	float: right;
+}
+h3 {
+	color: inherit;
+	line-height: 1.1;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: 500;
+}
+h3 {
+	margin-top: 20px;
+	margin-bottom: 10px;
+}
+h3 {
+	font-size: 24px;
+}
+h3 {
+	color: rgb(85, 85, 85);
+	line-height: 24px;
+	font-size: 18px;
+}
+p {
+	margin: 0px 0px 10px;
+}
+.description p {
+	margin-top: -10px;
+}
+
+</style>
+</head>
+<script src="jquery.js"></script>
+</head>
+<body>
+	<h2>
+		<a href="/">Amnesty International Alert Database</a>
+	</h2>
+<body class="wide" data-twttr-rendered="true"><div class="layout">
+			
+			
+<div class="alert-info">
+<div class="description">
+<h3 class="country"></h3>
+</div>
+</div>
+<script>
+(function() {
+	$.getJSON( "/data?country=ALBANIA", function(data) {
+		$( ".country" ).append(data.alerts[0].country);
+		$( ".description" ).append(data.alerts[0].description);
+	});
+})();
+</script>
+<div>The script for this is:
+<table border="1" >
+<tr>
+<td>
+<pre>
+(function() {
+	$.getJSON( "/data?country=ALBANIA", function(data) {
+		$( ".country" ).append(data.alerts[0].country);
+		$( ".description" ).append(data.alerts[0].description);
+	});
+})();
+</pre>
+</td>
+</tr>
+</table>
+</div>
+</body>
+</html>
