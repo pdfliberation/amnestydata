@@ -10,6 +10,10 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
 import org.apache.pdfbox.util.TextPosition;
 
+import com.example.model.Alert;
+import com.example.model.Alerts;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 public class ProcessAmnesty {
 	
@@ -18,6 +22,7 @@ public class ProcessAmnesty {
 	List<String> labels = new ArrayList<String>();
 	List<String> tLabels = new ArrayList<String>();
 	List<String> countries = new ArrayList<String>();
+	List<Alert> alerts = new ArrayList<Alert>();
 	
 	public static void main(String[] args) throws Exception {
 		int year = 2008;
@@ -31,6 +36,7 @@ public class ProcessAmnesty {
 	public void process(int year) throws Exception {
 		StringBuffer writer = new StringBuffer();
 		BufferedReader reader = new BufferedReader( new InputStreamReader( new FileInputStream(workingDirectory + year + " extract.txt"), Charset.forName("UTF-8") ) );
+		Alert alert = null; 
 		String line;
 		boolean start = false;
 		String lastFound = null;
@@ -53,6 +59,8 @@ public class ProcessAmnesty {
 					lastFound = country;
 					// start new country section
 					writer.append("========== " + country.toUpperCase() + " ==========\r\n");
+					if ( alert != null ) alerts.add(alert);
+					alert = new Alert(country.toUpperCase(), Integer.toString(year), "" ); 
 					saveParagraph = false;
 				}
 			}
@@ -74,14 +82,30 @@ public class ProcessAmnesty {
 			if ( saveParagraph ) {
 				if ( !line.contains("Amnesty International Report") && line.length() > 1) {
 					writer.append(line+"\r\n");
+					alert.setDescription( alert.getDescription() + line );
 					}
 			}
 			
 		}
-		BufferedWriter bw = new BufferedWriter( new OutputStreamWriter(new FileOutputStream(workingDirectory + year + " torture extract.txt")));
+		reader.close();
+		BufferedWriter bw = new BufferedWriter( new OutputStreamWriter(new FileOutputStream(workingDirectory + year + " torture extract.txt"), Charset.forName("UTF-8")));
 		bw.write(writer.toString());
 		bw.close();
-		reader.close();
+
+		bw = new BufferedWriter( new OutputStreamWriter(new FileOutputStream(workingDirectory + year + " torture extract.json"), Charset.forName("UTF-8")));
+		ObjectMapper mapper =  new ObjectMapper();
+		
+		List<Alert> tAlerts = new ArrayList<Alert>();
+		for ( Alert tAlert: alerts) {
+			if ( !tAlert.getDescription().isEmpty() ) {
+				tAlert.setDescription( tAlert.getDescription().replace("Torture and other ill-treatment", "") );
+				tAlerts.add(tAlert);
+			}
+		}
+			
+		mapper.writeValue(bw, new Alerts(tAlerts));
+		bw.close();
+		
 	}
 	
 	public void readCountries(int year) throws Exception {
