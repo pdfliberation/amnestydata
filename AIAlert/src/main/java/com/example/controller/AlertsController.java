@@ -4,7 +4,18 @@ package com.example.controller;
 import com.example.model.Alert;
 import com.example.model.Alerts;
 import com.example.service.AlertsService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
 
 import javax.ws.rs.*;
@@ -31,11 +42,17 @@ public class AlertsController {
         return new ModelAndView("alerts", "alerts", alertService.listAlerts());
     }
 
+//    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Produces("application/json; charset=UTF-8")
     @Path("data")
-    public Alerts get(@QueryParam("country") String country, @QueryParam("date") String date) {
-    	return alertService.getAlerts(country, date);
+    public String get(@QueryParam("country") String country, @QueryParam("date") String date) throws Exception {
+    	Alerts alerts = alertService.getAlerts(country, date);
+//    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//    	BufferedWriter writer = new BufferedWriter( new OutputStreamWriter( baos, "UTF-8" ) );
+//    	writer.close();
+    	return new String(new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsBytes(alerts), "UTF-8");
     }
 
     @PUT

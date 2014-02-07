@@ -1,7 +1,6 @@
 package ProcessAmnesty;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.util.*;
 
 import org.apache.pdfbox.exceptions.InvalidPasswordException;
@@ -35,13 +34,14 @@ public class ProcessAmnesty {
 
 	public void process(int year) throws Exception {
 		StringBuffer writer = new StringBuffer();
-		BufferedReader reader = new BufferedReader( new InputStreamReader( new FileInputStream(workingDirectory + year + " extract.txt"), Charset.forName("UTF-8") ) );
+		BufferedReader reader = new BufferedReader( new InputStreamReader( new FileInputStream(workingDirectory + year + " extract.txt"), "UTF-8" ) );
 		Alert alert = null; 
 		String line;
 		boolean start = false;
 		String lastFound = null;
 		boolean saveParagraph = false;
 		while ( (line=reader.readLine()) != null ) {
+			line = line.replace("\u0003", "").replace("\u0002", "").replace("\u0001", "").replace("\u0004", "");
 			if ( line.toLowerCase().contains("part two: country entries")) {
 				start = true;
 				System.out.println("start");
@@ -88,11 +88,11 @@ public class ProcessAmnesty {
 			
 		}
 		reader.close();
-		BufferedWriter bw = new BufferedWriter( new OutputStreamWriter(new FileOutputStream(workingDirectory + year + " torture extract.txt"), Charset.forName("UTF-8")));
+		BufferedWriter bw = new BufferedWriter( new OutputStreamWriter(new FileOutputStream(workingDirectory + year + " torture extract.txt"), "UTF-8"));
 		bw.write(writer.toString());
 		bw.close();
 
-		bw = new BufferedWriter( new OutputStreamWriter(new FileOutputStream(workingDirectory + year + " torture extract.json"), Charset.forName("UTF-8")));
+		bw = new BufferedWriter( new OutputStreamWriter(new FileOutputStream(workingDirectory + year + " torture extract.json"), "UTF-8"));
 		ObjectMapper mapper =  new ObjectMapper();
 		
 		List<Alert> tAlerts = new ArrayList<Alert>();
@@ -103,13 +103,13 @@ public class ProcessAmnesty {
 			}
 		}
 			
-		mapper.writeValue(bw, new Alerts(tAlerts));
+		mapper.writerWithDefaultPrettyPrinter().writeValue(bw, new Alerts(tAlerts));
 		bw.close();
 		
 	}
 	
 	public void readCountries(int year) throws Exception {
-		BufferedReader reader = new BufferedReader( new InputStreamReader( new FileInputStream(workingDirectory + year + " headers.txt"), Charset.forName("UTF-8") ) );
+		BufferedReader reader = new BufferedReader( new InputStreamReader( new FileInputStream(workingDirectory + year + " headers.txt"), "UTF-8" ) );
 		boolean start = false;
 		String line;
 		while ( (line=reader.readLine()) != null ) {
@@ -137,7 +137,7 @@ public class ProcessAmnesty {
 	
 	public void dedupLabels(int year) throws Exception {
 		Set<String> set = new TreeSet<String>();
-		BufferedReader reader = new BufferedReader( new InputStreamReader( new FileInputStream(workingDirectory + year + " headers.txt"), Charset.forName("UTF-8") ) );
+		BufferedReader reader = new BufferedReader( new InputStreamReader( new FileInputStream(workingDirectory + year + " headers.txt"), "UTF-8" ) );
 		boolean start = false;
 
 		String line;
@@ -194,8 +194,8 @@ public class ProcessAmnesty {
 
         MyStripper stripper = new MyStripper();
         
-        Writer output = new OutputStreamWriter (new FileOutputStream( workingDirectory + year + " extract.txt" ) );
-        stripper.headerOutput = new OutputStreamWriter (new FileOutputStream( workingDirectory + year + " headers.txt" ) );
+        Writer output = new OutputStreamWriter (new FileOutputStream( workingDirectory + year + " extract.txt" ), "UTF-8" );
+        stripper.headerOutput = new OutputStreamWriter (new FileOutputStream( workingDirectory + year + " headers.txt" ), "UTF-8" );
 
         stripper.writeText(document, output);
         
