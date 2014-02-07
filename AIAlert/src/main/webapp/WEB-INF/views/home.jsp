@@ -8,7 +8,7 @@
 <title>Amnesty International Alerts Database</title>
 </head>
 <body>
-<h2><a href="<c:url value="/" />">Amnesty International Alerts Database</a></h2>
+<h2><a href="/home">Amnesty International Alerts Database</a></h2>
 <div style="margin-bottom: 20px">
   This is proof of concept web application to serve as an Alert Database. 
 </div>
@@ -24,8 +24,8 @@ To upload bulk data go to the <a href="/fileupload">uploads page</a>.
 <div style="margin-bottom: 20px">
 To use the RESTful API to save bulk data, use URL's like these<ul>
 <li>All Data = <a href="/data/">http://aialerts.herokuapp.com/data</a></li>
-<li>All Data for US = <a href="/data?country=US">http://aialerts.herokuapp.com/data?country=US</a></li>
-<li>All Data for US for 2012 = <a href="/data?country=US&date=2012">http://aialerts.herokuapp.com/data?country=US&amp;date=2012</a></li>
+<li>All Data for AZERBAIJAN = <a href="/data?country=AZERBAIJAN">http://aialerts.herokuapp.com/data?country=AZERBAIJAN</a></li>
+<li>All Data for AZERBAIJAN for 2013 = <a href="/data?country=AZERBAIJAN&date=2013">http://aialerts.herokuapp.com/data?country=AZERBAIJAN&amp;date=2013</a></li>
 </ul> 
 </div>
 <div style="margin-bottom: 20px">

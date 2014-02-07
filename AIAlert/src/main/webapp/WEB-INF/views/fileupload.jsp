@@ -8,7 +8,7 @@
 <title>Amnesty International Alerts Database</title>
 </head>
 <body>
-<h2><a href="<c:url value="/" />">Amnesty International Alerts Database</a></h2>
+<h2><a href="/home">Amnesty International Alerts Database</a></h2>
 		<p>
 			Use this page for uploading data in json format	
 		</p>
