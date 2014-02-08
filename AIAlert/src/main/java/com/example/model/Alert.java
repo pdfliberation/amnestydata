@@ -16,11 +16,10 @@ public class Alert {
 
     private String date;
     
-    @Column(columnDefinition="TEXT")
+	@Column(columnDefinition="TEXT")
     private String description;
     
-    private String method;
-    private String agency;
+    private String notes;
     
     public Alert() {}
     public Alert(String country, String date, String description) {
@@ -44,19 +43,12 @@ public class Alert {
     @FormParam("description")
     public void setDescription(String Description) {this.description = Description;}
     public String getDescription() {return description;}
-	public String getMethod() {
-		return method;
+	public String getNotes() {
+		return notes;
 	}
-    @FormParam("method")
-	public void setMethod(String method) {
-		this.method = method;
-	}
-	public String getAgency() {
-		return agency;
-	}
-    @FormParam("agency")
-	public void setAgency(String agency) {
-		this.agency = agency;
+    @FormParam("notes")
+	public void setNotes(String method) {
+		this.notes = method;
 	}
 
 }

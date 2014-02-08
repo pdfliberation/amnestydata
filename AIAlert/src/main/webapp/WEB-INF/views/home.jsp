@@ -22,6 +22,9 @@ To see the RESTful API in other web pages go to <a href="/widgets">widgets</a>.
 To upload bulk data go to the <a href="/fileupload">uploads page</a>. 
 </div>
 <div style="margin-bottom: 20px">
+<form action="clear" method="post">To <input type="submit" value="CLEAR" /> the DATABASE, press the button.</form> 
+</div>
+<div style="margin-bottom: 20px">
 To use the RESTful API to save bulk data, use URL's like these<ul>
 <li>All Data = <a href="/data/">http://aialerts.herokuapp.com/data</a></li>
 <li>All Data for ALBANIA = <a href="/data?country=ALBANIA">http://aialerts.herokuapp.com/data?country=ALBANIA</a></li>

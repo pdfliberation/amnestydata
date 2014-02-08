@@ -3,21 +3,15 @@ package com.example.controller;
 
 import com.example.model.Alert;
 import com.example.model.Alerts;
+import com.example.model.ViewModel;
 import com.example.service.AlertsService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.TreeSet;
 
+import javax.annotation.PostConstruct;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
@@ -32,6 +26,33 @@ public class AlertsController {
 	public static final String ALERTS_URL = "/";
     @Autowired
     private AlertsService alertService;
+    private Collection<String> countries;
+    private Collection<String> years;
+    private String country;
+    private String year;
+    private static boolean dirty;
+    
+    public AlertsController() {
+    	dirty = true;
+    }
+    
+    public void setDirty() {
+    	dirty = true;
+    }
+    
+    @PostConstruct
+    public void postConstruct() {
+    	countries = new TreeSet<String>();
+    	years = new TreeSet<String>();
+    	Alerts alerts = alertService.listAlerts();
+    	for ( Alert alert: alerts.getAlerts() ) {
+    		if ( alert.getCountry() != null ) countries.add(alert.getCountry());
+    		if ( alert.getDate() != null ) years.add(alert.getDate());
+    	}
+    	year = null;
+    	country = null;
+    	dirty = false;
+    }
 	
     @GET
     @Produces(MediaType.TEXT_HTML)
@@ -39,7 +60,15 @@ public class AlertsController {
     public ModelAndView viewAll() {
     	// forward to the "alerts" view, with a request attribute named
     	// "alerts" that has all of the existing contacts
-        return new ModelAndView("alerts", "alerts", alertService.listAlerts());
+    	if ( dirty ) postConstruct();
+        return new ModelAndView("alerts", "model", new ViewModel(
+        		alertService.getAlerts(country, year), 
+        		countries, 
+        		years, 
+        		country, 
+        		year
+        	)
+        );
     }
 
 //    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
@@ -69,13 +98,48 @@ public class AlertsController {
 
     @PUT
     @POST
+    @Produces(MediaType.TEXT_HTML)
+    @Path("clear")
+    public ModelAndView clear() throws URISyntaxException 
+    {
+    	alertService.clearDatabase();
+    	setDirty();
+        ModelAndView mav = new ModelAndView();
+        mav.setViewName("home");
+        return mav;
+    }
+
+    @PUT
+    @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.TEXT_HTML)
-    @Path("alerts/delete")
+    @Path("alerts/update")
     public ModelAndView delete(@Form Alert alert)
     {
-    	alertService.removeAlert(alert.getId());
+    	alertService.updateNotes(alert);
     	return viewAll();
     }
 
+/*    
+    @PUT
+    @POST
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.TEXT_HTML)
+    @Path("alerts")
+    @RequestMapping(value="UPDATE", method=RequestMethod.POST)
+    public ModelAndView update(@Form Alert alert)
+    {
+    	alertService.updateNotes(alert);
+    	return viewAll();
+    }
+*/
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    @Path("alerts/filter")
+    public ModelAndView filter(@QueryParam("country") String country, @QueryParam("year") String year)
+    {
+    	this.country = country;
+    	this.year = null;
+    	return viewAll();
+    }
 }

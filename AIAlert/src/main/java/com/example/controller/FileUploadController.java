@@ -24,6 +24,8 @@ public class FileUploadController {
 
 	@Autowired
     private AlertsService alertService;
+	@Autowired
+    private AlertsController alertController;
 
 	@RequestMapping(method=RequestMethod.GET)
 	public void fileUploadForm() {
@@ -39,8 +41,9 @@ public class FileUploadController {
 		reader.close();
 
 		alertService.saveAlerts(alerts);
+		alertController.setDirty();
 		
-        return new ModelAndView("alerts", "alerts", alertService.listAlerts());
+        return alertController.viewAll();
 	}
 	
 }

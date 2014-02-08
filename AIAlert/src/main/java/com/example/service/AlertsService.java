@@ -1,7 +1,9 @@
 package com.example.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,11 +20,6 @@ public class AlertsService {
     @PersistenceContext
     EntityManager em;
         
-    @Transactional
-    public void addAlert(Alert alert) {
-        em.persist(alert);
-    }
-
     @Transactional
     public Alerts listAlerts() {
         CriteriaQuery<Alert> c = em.getCriteriaBuilder().createQuery(Alert.class);
@@ -44,6 +41,21 @@ public class AlertsService {
     }
     
     @Transactional
+    public void updateNotes(Alert alert) {
+    	Alert cAlert = em.find(Alert.class, alert.getId());
+    	cAlert.setNotes(alert.getNotes());
+        em.merge(cAlert);
+    }
+    
+    @Transactional
+    public void clearDatabase() {
+    	Alerts alerts = listAlerts();
+    	for ( Alert alert: alerts.getAlerts()) {
+    		em.remove(alert);
+    	}
+    }
+
+    @Transactional
     public void saveAlerts(Alerts alerts) {
 		for ( Alert alert: alerts.getAlerts() ) {
 			alert.setId(null);
@@ -59,12 +71,12 @@ public class AlertsService {
     	c.select(alert);
     	
     	List<Predicate> criteria = new ArrayList<Predicate>(); 
-    	if ( country != null && !country.isEmpty() ) {
+    	if ( country != null && !country.isEmpty() && !country.toLowerCase().equals("all")) {
     		ParameterExpression<String> p =
     				cb.parameter(String.class, "country");
     				criteria.add(cb.equal(alert.get("country"), p));
     	}
-    	if ( year != null && !year.isEmpty() ) {
+    	if ( year != null && !year.isEmpty() && !year.toLowerCase().equals("all") ) {
     		ParameterExpression<String> p =
     				cb.parameter(String.class, "date");
     				criteria.add(cb.equal(alert.get("date"), p));
@@ -77,9 +89,11 @@ public class AlertsService {
 		}
     	
     	TypedQuery<Alert> q = em.createQuery(c);
-    	if ( country != null && !country.isEmpty() ) { q.setParameter("country", country); }
-    	if ( year != null && !year.isEmpty() ) { q.setParameter("date", year); }
+    	if ( country != null && !country.isEmpty() && !country.toLowerCase().equals("all") ) { q.setParameter("country", country); }
+    	if ( year != null && !year.isEmpty() && !year.toLowerCase().equals("all") ) { q.setParameter("date", year); }
     	
     	return new Alerts(q.getResultList());
     }
+    
+
 }
