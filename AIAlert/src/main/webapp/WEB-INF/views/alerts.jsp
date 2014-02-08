@@ -12,7 +12,7 @@ textarea { width: 100% }
 </head>
 <body>
 	<h2><a href="/home">Amnesty International Alerts Database</a></h2>
-	<form action="/alerts" method="post">
+	<form accept-charset="UTF-8" action="/alerts" method="post">
 		<table border="1">
 			<thead>
 				<tr bgcolor="orange">

@@ -24,12 +24,12 @@ To upload bulk data go to the <a href="/fileupload">uploads page</a>.
 <div style="margin-bottom: 20px">
 To use the RESTful API to save bulk data, use URL's like these<ul>
 <li>All Data = <a href="/data/">http://aialerts.herokuapp.com/data</a></li>
-<li>All Data for AZERBAIJAN = <a href="/data?country=AZERBAIJAN">http://aialerts.herokuapp.com/data?country=AZERBAIJAN</a></li>
-<li>All Data for AZERBAIJAN for 2013 = <a href="/data?country=AZERBAIJAN&date=2013">http://aialerts.herokuapp.com/data?country=AZERBAIJAN&amp;date=2013</a></li>
+<li>All Data for ALBANIA = <a href="/data?country=ALBANIA">http://aialerts.herokuapp.com/data?country=ALBANIA</a></li>
+<li>All Data for ALBANIA for 2013 = <a href="/data?country=ALBANIA&date=2013">http://aialerts.herokuapp.com/data?country=ALBANIA&amp;date=2013</a></li>
 </ul> 
 </div>
 <div style="margin-bottom: 20px">
-The original bulk (.json) data files for each year (2013-2008) are at <a href="https://github.com/pdfliberation/amnestydata/tree/master/parsed-data">GitHub / PdfLiberation / AmnestyData / Parsed-Data</a>. The source code is there as well, under the AmnestyData directory.
+The original bulk (.json) data files for each year (2013-2008) are at <a href="https://github.com/pdfliberation/amnestydata/releases">GitHub / PdfLiberation / AmnestyData, under the Releases tab</a>. The source code is there as well, under the AmnestyData directory.
 </div>
 </body>
 </html>

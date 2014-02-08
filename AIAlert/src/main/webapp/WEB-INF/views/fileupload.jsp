@@ -12,7 +12,7 @@
 		<p>
 			Use this page for uploading data in json format	
 		</p>
-		<form id="fileuploadForm" action="fileupload" method="POST" enctype="multipart/form-data" class="cleanform">
+		<form accept-charset="UTF-8" id="fileuploadForm" action="fileupload" method="POST" enctype="multipart/form-data" class="cleanform">
 			<div>
 		  		<h2>Upload Saved Alert Data</h2>
 			</div>
